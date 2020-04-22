@@ -5,9 +5,6 @@
 an operating system is  a program that manages the computer hardware. It also provide the basis for application programs and acts as an intermediary betwteen the user and the computer hardware
 
 操作系统是 管理计算机硬件的程序,它也为应用程序提供了基础,在用户和计算机硬件中起到 中间媒介的作用
-
-
-df
 An amazing aspect of operating system is how varied they are in accomplishing these taskes
 
 操作系统令人惊叹的一面 是他们完成这些交互任务的方式 多种多样
@@ -229,61 +226,137 @@ most intimately involved with the hardware.
 
 In this context, we can view an operating system as a resource allocator. A computer system has many resources that may be required to solve a problem: CPU time, memory space, file-storage space, I/0 devices, and so on. 
 
-在这种情况，我们能把操作系统看做一个资源分配器，计算机系统
+在这种情况，我们能把操作系统看做一个资源分配器，计算机系统具有 解决问题 可能需要的很多资源：CPU时间，内存空间，文件存储，IO设备等等
 
-The operating system acts as the manager of these resources. Facing numerous and possibly conflicting requests 
-for resources, the operating system must decide how to allocate them to specific 
-programs and users so that it can operate the computer system efficiently and 
-fairly. As we have seen, resource allocation is especially important where many 
+The operating system acts as the manager of these resources. Facing numerous and possibly conflicting requests for resources, the operating system must decide how to allocate them to specific programs and users so that it can operate the computer system efficiently and fairly. 
+
+操作系统 扮演着 这些资源的管理，面对大量可能的冲突的资源请求，操作系统必须决定如何分配资源给 特定的程序与用户，使得操作系统能够操作 系统公平有效
+
+As we have seen, resource allocation is especially important where many 
 users access the same mainframe or minicomputer. 
+
+正如同我们看见的，当多用户访问同一台大型机或者mini-PC 时，资源分配尤其重要
+
 A slightly different view of an operating system emphasizes the need to 
-control the various I/0 devices and user programs. An operating system is a 
-control program. A manages the execution of user programs 
-to prevent errors and improper use of the computer. It is especially concerned 
-with the operation and control of I/O devices. 
+control the various I/0 devices and user programs. 
+
+操作系统的视图（与用户视图）略有 不同，它强调需要控制IO设备和用户程序
+
+An operating system is a control program. A control program manages the execution of user programs to prevent errors and improper use of the computer. 
+
+有个操作系统是一个控制程序，一个控制程序管理用户程序的执行，以避免错误和不恰当的使用
+
+It is especially concerned with the operation and control of I/O devices. 
+
+尤其要关注 IO设备的操作和控制
+
 1.1.3 Defining Operating Systems 
+
+定义操作系统
+
 We have looked at the operating system's role from the views of the user 
-and of the system. How, though, can we define what an operating system 
-is? In general, we have no completely adequate definition of an operating 
-system. Operating systems exist because they offer a reasonable way to solve 
-the problem of creating a usable computing system. The fundamental goal 
-of computer systems is to execute user programs and to make solving user 
-6 Chapter 1 
-1.2 
+and of the system. 
+
+我们已经从用户和系统角度研究了操作系统的作用
+
+How, though, can we define what an operating system is? 
+
+但是如何才能定义操作系统是什么
+
+In general, we have no completely adequate definition of an operating 
+system.
+
+总之，我们没有对操作系统有充足的定义
+
+Operating systems exist because they offer a reasonable way to solve 
+the problem of creating a usable computing system. 
+
+操作系统的存在 是因为他们提供了一个合理的方式，解决 了 如何创建一个可用计算系统的 问题
+
+The fundamental goal of computer systems is to execute user programs and to make solving user
+
+计算机系统的基本目标 是执行用户程序，解决用户问题
+
 STORAGE DEFINITIONS AND NOTATION 
-A is the basic unit of computer storage. It can contain one of two values, 
-zero and one. All other storage in a computer is based on collections of bits. 
+
+存储定义与符号
+
+A bit is the basic unit of computer storage. It can contain one of two values, zero and one. All other storage in a computer is based on collections of bits. 
+
+一个bit是 计算机存储 的基本单位，它能够有两个值，0,1 所有其他计算机的存储 基于bit位的集合
+
 Given enough bits, it is amazing how many things a computer can represent: 
 numbers, letters, images, movies, sounds, documents, and programs, to name 
-a few. A is 8 bits, and on most computers it is the smallest convenient 
-chunk of storage. For example, most computers don't have an instruction 
-to move a bit but do have one to move a byte. A less common term is 
-which is a given computer architecture's native storage unit. A word is 
-generally made up of one or more bytes. For example, a computer may have 
-instructions to move 64-bit (8-byte) words. 
-A kilobyte, or KB, is 1,024 bytes; a megabyte, or MB, is 1,0242 bytes; and 
-a gigabyte, or GB, !s 1,0243 bytes. Computer manufacturers often round off 
-these numbers and say that a megabyte is 1 million bytes and a gigabyte is 1 
-billion bytes. 
-problems easier. Toward this goal, computer hardware is constructed. Since 
-bare hardware alone is not particularly easy to use, application programs are 
-developed. These programs require certain common operations, such as those 
-controlling the II 0 devices. The common functions of controlling and allocating 
+a few. 
+
+只要有足够的bit位，令人惊讶的是 计算机可以表示 多少东西：numbers, letters, images, movies, sounds, documents, and programs ，仅仅举几例
+
+A byte is 8 bits, and on most computers it is the smallest convenient 
+chunk of storage. 
+
+1byte 是 8 bits, 在 大多数计算机 这是最小的最方便的存储块
+
+For example, most computers don't have an instruction to move a bit but do have one to move a byte. A less common term is word which is a given computer architecture's native storage unit. 
+
+例如，大多数计算机没有 操作位的指令只有字节操作的指令，更少见得术语 是 word，这是给定计算机架构 本地存储单元
+
+A word is  generally made up of one or more bytes. For example, a computer may have 
+instructions to move 64-bit (8-byte) words. A kilobyte, or KB, is 1,024 bytes; a megabyte, or MB, is 1,0242 bytes; and a gigabyte, or GB, is 1,0243 bytes. Computer manufacturers often round off these numbers and say that a megabyte is 1 million bytes and a gigabyte is 1 billion bytes. 
+problems easier. 
+
+一个单词 大致由一个或者多个单词组成，例如，一个计算机可能有指令操作 64位（8个字节)单词，
+
+Toward this goal, computer hardware is constructed.
+
+为了达到这个目标，计算机硬件 被构建了
+
+Since bare hardware alone is not particularly easy to use, application programs are developed. 
+
+由于裸硬件 并不是特别容易使用，于是应用程序被开发出来
+
+These programs require certain common operations, such as those 
+controlling the IO devices. 
+
+这些程序需要某些通用操作，比如IO设备的控制
+
+The common functions of controlling and allocating 
 resources are then brought together into one piece of software: the operating 
 system. 
+
+资源控制和分配的通用功能被整合到一个软件中,这个软件就是操作系统
+
 In addition, we have no universally accepted definition of what is part of the 
-operating system. A simple viewpoint is that it includes everything a vendor 
-ships when you order "the operating system." The features included, however, 
-vary greatly across systems. Some systems take up less than 1 megabyte of 
-space and lack even a full-screen editor, whereas others require gigabytes of 
-space and are entirely based on graphical windowing systems. A more common 
-definition, and the one that we usually follow, is that the operating system 
-is the one program running at all times on the computer-usually called 
-the . (Along with the kernel, there are two other types of programs: 
+operating system.
+
+另外，关于操作系统的组成  我们还没有统一被认可的定义，
+
+ A simple viewpoint is that it includes everything a vendor ships when you order "the operating system." The features included, however, vary greatly across systems. 
+
+一个简单的观点 是，当你订购一个操作系统时，操作系统包括供应商提供的一切
+
+其中包含的功能在系统之间 差异很大
+
+Some systems take up less than 1 megabyte of space and lack even a full-screen editor, whereas others require gigabytes of space and are entirely based on graphical windowing systems. 
+
+一些系统 占用不到 1M的空间，甚至没有全屏编辑器，然而其他系统需要 GB级的空间，且完全基于图形界面
+
+A more common definition, and the one that we usually follow, is that the operating system is the one program running at all times on the computer-usually called 
+the kernel. 
+
+一个更加常见的定义 也是我们通常遵循的定义 操作系统 是一个始终运行的通常电脑的程序 通常叫做 内核
+
+(Along with the kernel, there are two other types of programs: 
 which are associated with the operating system but are not 
 part of the kernel, and which include all programs not 
 associated with the operation of the system.) 
-The matter of what constitutes an operating system has become increas￾ingly important. In 1998, the United States Deparhnent of Justice filed suit 
+
+(与内核一起的,通常有两种类型的程序,与操作系统相关的,但是不是内核的一部分,另外一种是 所有与操作系统无关的进程)
+
+The matter of what constitutes an operating system has become increasingly important. 
+
+是什么构成操作系统 这个问题越来越重要
+
+In 1998, the United States Department of Justice filed suit 
 against Microsoft, in essence claiming that Microsoft included too much func￾tionality in its operating systems and thus prevented application vendors from 
 competing. For example, a Web browser was an integral part of the operating 
 systems. As a result, Microsoft was found guilty of using its operating-system 
