@@ -381,11 +381,25 @@ there has never been a more interesting time  to study operating system and it h
 
 从未有比现在更有趣的时间去学习操作系统,也从未如此简单
 
+the open-source movement has overtaken the operating systems,casuing many of them to be made available in source  and binaries (executable) format
 
+开源运动 占领了 操作系统,使得其中的很多操作系统的源代码和二进制执行文件 可获得
 
+This list includes Linux,BSD UNIX,Solaris and part of MacOSX.The availability of source code allows us to study operating system from inside out. Question that previously could only be answered by looking at documentation or the behaviour of the operating system can now be answered by examining the code itself
 
+其中包括 Linux,BSD UNIX,Solaris,部分MacOSX,源代码的开放使得我们从内向外学习操作系统,之前只能通过 看文档,或者看操作系统的行为 来解答的问题,现在能够通过检查代码本身来解答了
 
+In addition,The rise of virtualization as a mainstream computer function makes it possible to run many operating systems on top of one core system.For example,VMware provides a free "player" on which hundreds of virtual appliances can run.
 
+另外,虚拟化作为主流计算机的功能 的流行 使得在单核系统上运行多个操作系统成为可能,例如,VMware 提供免费"player" ,数百个免费的虚拟程序能够运行在上面.
+
+Using This method,student can try out hundres of operating systems within their existing operating system at no cost
+
+使用这个手段,学生能够 利用现有的操作系统 无成本的实验上百个操作系统,
+
+OperatingSystem that are no longer commercially viable have been open-sourced as well,enabling us to study how system operated in a time of fewer CPU,memory, and storage resources
+
+不在具有商业可行性的 操作系统 现在也已经开源了,使我们能够学习系统如何 在较少的CPU内存,存储资源 情况下操作
 
 
 
