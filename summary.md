@@ -97,40 +97,103 @@ The hardware- central processing unit,the memory ,and the input/output(I/O) devi
 
 硬件-CPU,内存,IO设备 提供了基本的计算资源
 
-The application program as word processors/ spreadsheets/ compilers, and Web browsers - define the ways in which these resources are used to solve users' computing problems. 
+The application program as word processors/ spreadsheets/ compilers, and Web browsers - define the ways in which these resources are used to solve users' computing problems.
+
+应用程序 例如文档处理器，电子表格,编译器，web浏览器等 定义了 这些资源解决用户的计算问题的方式
 
 The operating system controls the 
 hardware and coordinates its use among the various application programs for 
 the various users. 
+
+操作系统控制了硬件，为各个用户 协调 各个应用程序的使用
+
 We can also view a computer system as consisting of hardware/ software/ 
-and data. The operating system provides the means for proper use of these 
-resources in the operation of the computer system. An operating system is 
+and data. 
+
+我们同样可以将计算机 系统 视作 硬件 软件 数据的 组成
+
+The operating system provides the means for proper use of these 
+resources in the operation of the computer system.
+
+操作系统 提供了 在操作计算机系统时 的 合理使用资源的方法
+
+An operating system is 
 similar to a government. Like a government, it performs no useful function by 
 itself. It simply provides an environment within which other programs can do 
 useful work. 
+
+操作系统就像一个政府，它本身不起作用，它简单的提供 某种环境，在这种环境下，程序可以有效工作
+
 To understand more fully the operating systemfs role, we next explore 
 operating systems from two viewpoints: that of the user and that of the system. 
+
+为了更加全面的理解 操作系统 ，我们接下来从 两个角度 探索操作系统，用户角度，系统角度
+
+
+
 1.1.1 User View 
 The user's view of the computer varies according to the interface being 
-used. Most computer users sit in front of a PC, consisting of a monitor/ 
-keyboard/ mouse, and system unit. Such a system is designed for one user 
-to monopolize its resources. The goal is to maximize the work (or play) that 
-the user is performing. In this case/ the operating system is designed mostly 
-for with some attention paid to performance and none paid 
-to various hardware and software resources are 
-shared. Performance is, of course, important to the user; but such systems 
-1.1 5 
+used.
+
+计算机的用户视角 根据所使用的接口 各有不同
+
+Most computer users sit in front of a PC, consisting of a monitor/ 
+keyboard/ mouse, and system unit. 
+
+大多数人电脑用户 坐在PC前，PC 由 键鼠 以及系统单元 组成
+
+Such a system is designed for one user 
+to monopolize its resources. 
+
+这样的系统是为一个用户设计 以独占资源
+
+The goal is to maximize the work (or play) that 
+the user is performing. 
+
+它的目标是 使用户正在执行的 工作或游戏最大化
+
+In this case/ the operating system is designed mostly 
+for with some attention paid to performance and 
+
+none paid  to various hardware 
+
+and software resources are shared. 
+
+在这上面案例中，操作系统设计的主要关注点放在了性能
+
+而没有关注各种各样的硬件和软件资源的 共享
+
+Performance is, of course, important to the user; but such systems 
 are optimized for the single-user experience rather than the requirements of 
 multiple users. 
-In other cases, a user sits at a terminal connected to a or a 
-Other users are accessing the sance computer through other 
-terminals. These users share resources and may exchange information. The 
-operating system in S"Llclc cases is designed to maximize resource utilization￾to assure that all available CPU time, memory, and I/0 are used efficiently and 
-tbat no individual user takes more than her fair share. 
-In still otber cases, users sit at connected to networks of 
+
+性能当然对用户重要，但是这样的系统为单用的体验户优化 而不是为 多用户的需求
+
+In other cases, a user sits at a terminal connected to a mainframe or a mini-pc
+Other users are accessing the same computer through other 
+terminals. 
+
+在其他案例，用户坐在终端，连接到一台大型机或者一台mini-PC,其他人通过其他终端访问同样的电脑
+
+These users share resources and may exchange information.
+
+这些使用者 共享资源，可能会交换信息
+
+The operating system in such cases is designed to maximize resource utilization
+
+to assure that all available CPU time, memory, and I/0 are used efficiently and 
+that no individual user takes more than her fair share. 
+
+在这样情况的操作系统 旨在 最大化资源的使用 确保所有可能的CPU时间，内存，IO能够被有效的使用，并且 没有人能够获得 比他应得的更多
+
+In still other cases, users sit at connected to networks of 
 other workstations and These users have dedicated resources at their 
 disposal, but they also share resources such as networking and servers-file, 
-compute, and print servers. Therefore, their operating system is designed to 
+compute, and print servers. 
+
+在其他案例中，用户
+
+Therefore, their operating system is designed to 
 compromise between individual usability and resource utilization. 
 Recently, many varieties of handheld computers have come into fashion. 
 Most of these devices are standalone units for individual users. Some are 
