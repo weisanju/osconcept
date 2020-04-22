@@ -1,2 +1,2 @@
 # osconcept
-osconcept translate
+这是一个readme仓库
