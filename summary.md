@@ -128,7 +128,8 @@ operating systems from two viewpoints: that of the user and that of the system.
 
 
 
-1.1.1 User View 
+### 1.1.1 User View 
+
 The user's view of the computer varies according to the interface being 
 used.
 
@@ -217,7 +218,7 @@ Some computers have little or no user view. For example, embedded computers in h
 
 一些计算机 有一点或者 没有 用户界面，例如，家用设备中的嵌入式计算机 和汽车 可能会有数字键盘，可能会打开或关闭指示灯 以展示状态，他们的操作系统旨在 无用户交互运行 
 
-1.1.2 System View 
+### 1.1.2 System View 
 
 From the computer's point of view, the operating system is the program 
 most intimately involved with the hardware. 
@@ -250,7 +251,7 @@ It is especially concerned with the operation and control of I/O devices.
 
 尤其要关注 IO设备的操作和控制
 
-1.1.3 Defining Operating Systems 
+### 1.1.3 Defining Operating Systems 
 
 定义操作系统
 
@@ -356,50 +357,31 @@ The matter of what constitutes an operating system has become increasingly impor
 
 是什么构成操作系统 这个问题越来越重要
 
-In 1998, the United States Department of Justice filed suit 
-against Microsoft, in essence claiming that Microsoft included too much func￾tionality in its operating systems and thus prevented application vendors from 
-competing. For example, a Web browser was an integral part of the operating 
+In 1998, the United States Department of Justice filed suit against Microsoft, in essence claiming that Microsoft included too much functionality in its operating systems and thus prevented application vendors from 
+competing.
+
+在1998年,美国司法部 向微软提起诉讼,大致宣称微软包含太多功能在它的操作系统,这阻止了应用程序供应商参与竞争
+
+For example, a Web browser was an integral part of the operating 
 systems. As a result, Microsoft was found guilty of using its operating-system 
 monopoly to limit competition. 
-Before we can explore the details of how computer systems operate, we need 
-general knowledge of the structure of a computer system. In this section, 
-we look at several parts of this structure. The section is mostly concerned 
-1.2 
-THE STUDY OFOPERATING SYSTEMS 
-There has neverbeenarnore interestirighnwtostud yoperating systems:· and 
-it has neverb.een.e~sier.Theopen-sourc;e movernent has overtaken .operating 
-systems, caJ.tsing marly ofthenctobemadeavailable in both source and binary 
-(e~ecuta]Jle) fonnat.·.This Iistindud~~Linu)(, BSDUNIX/Solat•is,and part of• 
-]\II~cos.x. Th~availa~ilityqf·source.code.q,llowsus.tostudyoperq,til}.gsy?tems 
-frorrt theinsid,eout' .. Questionsthat previo)1sly could onlyb~ answerecL~y 
-looking atdocumentaticmor thebehayior.ofan op~rating system c.annow be 
-answered by examining the code itself. 
-In additi?n,. the rise of virtualization as a ll}.ainsfreafll. ( andfrequelltly free) 
-cmnp)1ter ftmctionmakesitpos;~i1Jlet()runnmnyoperqtingsystems.ontop.of 
-onecoresystem .. Forexample,VMware(J:lttp.://www .• vmwarE:).com):provides 
-afree·''player'' on which hundreds.of free .''virtualappliilnces'' cann.m.Using 
-this method,students call tryolit hundreds. ofoperatingsystems.withintheir 
-existing operatingsystems .atno cost. ... ··. . .. .·. ·.. · ... · 
-Operating .sy~temsthat are no lortge~ ~ofllmerci~lly viableltave been 
-opell-~o}lrced asvvell, ·enablirtg·.usto study how system~ pperated i~< 
-time.of•.•f~v.r~r CPU, ll}.emory,•·•etnd.storcrge•·•·.resoJ.trces,·····.An ... exten~iye.b).It·•not 
-complete .•. list ()f 9pen'-sourct operafirtg-"system pr?j~?ts is .. availa~le £rom 
-ht~p :// dm()~ ' org/ C:omp)1ters/Softp(lre /Operati»g:-Systems/p~~m._Sourc~/-
-S. i.m .. • .. •· .. ·.u. l·a·t·o . .rs.•· .. o··.f······s·· .. P ... e ... c .. i.fi .. ·.·c·· .. ··. ·•.h ..... a ... ·.r ... ·.d ...• w ... •·.a .•. r ... e ..... ·.· .... ar .. e· ... · .a·l·s·o .. · ...... a·.··v ... •· ... a.il .. ·<1. b ... ·.·.le·· ... ·.i·n···.· .. · ... · ... s .. om .•. ·. · .. e. •.·.c.·.· .... a····.·s·e· s. '···· ... al .. I.·.o ....... w.· .•.. m.· .•··.g .. th~ operat~<g systell}.to.runon.''na~ve''.hardware, ... all~ithrrtthec?l}.fines 
-of a modem CO!TIPJ-Iter and moderJ1 OPf/'atirtg ~ystem. For: example, a 
-DECSYSTEMc20 simulator running on Mac OS X can boot TOPS-20, loa~. the 
-~ource.tages;.·and modify al'ld comp~le·<l·.J:t.evvTOPS-20 .k~rneL ··Art·interested 
-stltdent ~ar• search theint~rnet to find the origillal papers that de~cribe the 
-operating systemand .. the.origipa~ manuals: 
-Tl<e adve~t?fogen-source operafirtg sy~te1Tis also l}."lal<es it easy t?··.make 
-the move fromstu~enttooper<:lting~systemdeveloper.With some knov.rledge, 
-som~ effo1't, a11d an Internet connection,a student c;al'leven create a new 
-operating-systemdistribution! Justa. fev.r years, ~go itwas diffic]_llt or 
-if1Lpossible ··to. get acce~s·. to ·source co?e . . N?v.r·. that access is.·liJnited only 
-bylt()wmuchtimeand disk space a student has. · 
-7 
-with computer-system organization, so you can skim or skip it if you already 
-understand the concepts.
+
+例如,网页浏览器是操作系统集成部分,因此,微软被认定位有罪,在利用操作系统垄断以此来限制竞争
+
+## 1.2 Computer System Organization
+
+Before we can explore the details of how computer systems operate, we need general knowledge of the structure of a computer system.
+
+在我们探讨操作系统如何运作之前,我们需要对计算机系统的结构有大致的了解
+
+
+### THE STUDY OF OPERATING SYSTEMS 
+
+there has never been a more interesting time  to study operating system and it has never been easier
+
+从未有比现在更有趣的时间去学习操作系统,也从未如此简单
+
+
 
 
 
