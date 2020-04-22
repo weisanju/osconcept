@@ -191,28 +191,47 @@ other workstations and These users have dedicated resources at their
 disposal, but they also share resources such as networking and servers-file, 
 compute, and print servers. 
 
-在其他案例中，用户
+在其他案例中，用户通过网络连接到其他 工作站，这些用户可以使用专用资源
+
+但是他们同样共享资源 例如网络，服务文件，计算，打印服务
 
 Therefore, their operating system is designed to 
 compromise between individual usability and resource utilization. 
-Recently, many varieties of handheld computers have come into fashion. 
-Most of these devices are standalone units for individual users. Some are 
-connected to networks, either directly by wire or (more often) through wireless 
-modems and networking. Because of power, speed, and interface limitations, 
-they perform relatively few remote operations. Their operating systems are 
-designed mostly for individual usability, but performance per unit of battery 
-life is important as well. 
-Some computers have little or no user view. For example, embedded 
-computers in home devices and automobiles may have numeric keypads and 
-may turn indicator lights on or off to show status, but they and their operating 
-systems are designed primarily to run without user intervention. 
+
+因此，他们的操作系统设计 为 在 个人使用，和资源利用之间 折中
+
+Recently, many varieties of handheld computers have come into fashion. Most of these devices are standalone units for individual users. 
+
+最近，大多数手持电脑 已经流行，大部分设备是针对 单独的用户  单独的设备
+
+Some are connected to networks, either directly by wire or (more often) through wireless modems and networking. 
+
+这些设备连接到网络， 要么是有线要么是无线解调器和网络连接
+
+Because of power, speed, and interface limitations, they perform relatively few remote operations. 
+
+英文功耗，速度，接口限制，他们执行 相对较少的远程操作
+
+Their operating systems are designed mostly for individual usability, but performance per unit of battery life is important as well. 
+
+他们的操作系统旨在个人使用。但是单位电池寿命同样很重要
+
+Some computers have little or no user view. For example, embedded computers in home devices and automobiles may have numeric keypads and may turn indicator lights on or off to show status, but they and their operating systems are designed primarily to run without user intervention. 
+
+一些计算机 有一点或者 没有 用户界面，例如，家用设备中的嵌入式计算机 和汽车 可能会有数字键盘，可能会打开或关闭指示灯 以展示状态，他们的操作系统旨在 无用户交互运行 
+
 1.1.2 System View 
+
 From the computer's point of view, the operating system is the program 
-most intimately involved with the hardware. In this context, we can view 
-an operating system as a . A computer system has many 
-resources that may be required to solve a problem: CPU time, memory space, 
-file-storage space, I/0 devices, and so on. The operating system acts as the 
-manager of these resources. Facing numerous and possibly conflicting requests 
+most intimately involved with the hardware. 
+
+从计算机的角度看，操作系统是与硬件最 相近的
+
+In this context, we can view an operating system as a resource allocator. A computer system has many resources that may be required to solve a problem: CPU time, memory space, file-storage space, I/0 devices, and so on. 
+
+在这种情况，我们能把操作系统看做一个资源分配器，计算机系统
+
+The operating system acts as the manager of these resources. Facing numerous and possibly conflicting requests 
 for resources, the operating system must decide how to allocate them to specific 
 programs and users so that it can operate the computer system efficiently and 
 fairly. As we have seen, resource allocation is especially important where many 
