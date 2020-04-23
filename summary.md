@@ -437,3 +437,8 @@ For a computer to start running - for instance ,when it is powered up  or reboot
 The occurrence of an event is usually signaled by an interrupt from either the hardware or the software . Hardware may trigger an  interrupt at any time by sending a signal to the CPU,usually by way of system bus . Software may trigger an interrupt by executing a special operation called a system call 
 
 事件的发生通常是来自硬件或者软件的中断。硬件可能会随时 通过发送给CPU一个信号 来触发中断，通常会经过系统总线。软件可能会 通过执行特殊的操作 叫做 系统调用 触发中断
+
+
+
+
+
