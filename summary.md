@@ -397,35 +397,43 @@ Using This method,student can try out hundres of operating systems within their 
 
 使用这个手段,学生能够 利用现有的操作系统 无成本的实验上百个操作系统,
 
-OperatingSystem that are no longer commercially viable have been open-sourced as well,enabling us to study how system operated in a time of fewer CPU,memory, and storage resources
+Operating-System that are no longer commercially viable have been open-sourced as well,enabling us to study how system operated in a time of fewer CPU,memory, and storage resources
 
 不在具有商业可行性的 操作系统 现在也已经开源了,使我们能够学习系统如何 在较少的CPU内存,存储资源 情况下操作
 
+An extensive but not complete list of open-source operating system projects is available from httpUrl
 
+一个大量的但不完整的开源操作系统项目的清单可以从 http://domz.org/computers/software/operating_systems/open_source/获得
 
-计算机系统组织
+Simulators of specific hardware are also  available in some cases ，allowing operating system run on “native” hardware,all within the confines of a modern computer and modern operating system
 
-计算机系统架构
+特定硬件的模拟器同样在某些情况 可以(从上述网站上)获得，允许操作系统运行在本地硬件，所有的都在现代计算机 现代操作系统的范围内
 
-开放操作系统架构
+The advent of open-source operating system also makes it easy to make the move from student to operating system developer
 
-开放操作系统操作
+开源操作系统的出现 也使得 从学生到操作系统开发者 这种改变 更简单.
 
-进程管理
+With some knowledge ,some  effort ,an  Internet  connection ,An  student  can  even create a  new operating-system  distribution .Just a few years ago ,it  is difficult or impossible to access   code . Now that access is limited only by how much time and disk space as student has
 
-内存管理
+一些知识，一些努力，一个Internet连接，一个学生甚至能创建一个新的操作系统发行版本，就在几年前，访问源代码很困难或者不可能，现在限制学生的是他的时间和磁盘空间
 
-存储管理
+with computer-system organization, so you can skim or skip it if you already
+understand the concepts.
 
-保护与安全
+计算机系统的组织，如果你已经理解了概念了，你可以略读或者跳过
 
-分布式系统
+### 1.2.1 Computer-System Operation
 
-专用用途系统
+A modern general-purpose computer system consists of one or more CPUS and a number of device controllers connected  through a common bus that provides access to shared memory . Each device controller  is in charge of a specific type of device(for example disk drivers,audio device ,video display ) CPU and device controllers can execute concurrently,competing for memory cycles . To ensure orderly access to shared memory,a  memory controller is provided whose function is to synchronize access to the memory 
 
-计算环境
+现代通用计算机包含一个或者多个CPU，大量 设备控制器，直连 可以提供共享内存访问的 地址总线，每一个设备控制器负责一种类型的设备（例如，磁盘驱动，音频设备，视频显示）。CPU与设备控制器能够并发执行，参与内存周期的竞争，为了确保有序的访问共享内存，需要内存控制器的 同步访问内存的 功能
 
-开源操作系统
+![现代操作系统组织结构](images/modernSystemOrganization.png)
 
+For a computer to start running - for instance ,when it is powered up  or rebooted ,it  needs to have an initial program to run. This initial program  or bootstrap program  tends to be simple ,Typically ,it is stored in ROM  or  EEPROM , known by the general term  firmware within the computer hardware . It initializes all aspects of system from CPU registers to device controllers to memory contents .the bootstrap program must know how to load system and  how to start executing that system .To accomplish this goal ,the bootstrap program must locate and load into memory the operating-system kernel .The operating system then starts executing the first progress such as "init" and waits for some event to occur.
 
+拿计算机开始启动为例，当计算机开机或者重启时，它需要有一个初始化程序运行。这个初始化程序 或者 引导程序 往往很简单，特别的地方是它存储在 ROM里或者EEPROM中，常用术语也称之为 计算机硬件内的固件，它初始化了系统的所有方面，从CPU寄存器到 设备控制器 到内存内容。引导程序必须知道如何载入操作系统，如何开始执行系统。为了完成这个目标，引导程序必须 找到操作系统内核并载入内存。操作系统然后开始执行第一个进程，例如“init” ，并等待某些事件发生
 
+The occurrence of an event is usually signaled by an interrupt from either the hardware or the software . Hardware may trigger an  interrupt at any time by sending a signal to the CPU,usually by way of system bus . Software may trigger an interrupt by executing a special operation called a system call 
+
+事件的发生通常是来自硬件或者软件的中断。硬件可能会随时 通过发送给CPU一个信号 来触发中断，通常会经过系统总线。软件可能会 通过执行特殊的操作 叫做 系统调用 触发中断
