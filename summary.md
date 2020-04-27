@@ -438,7 +438,11 @@ The occurrence of an event is usually signaled by an interrupt from either the h
 
 事件的发生通常是来自硬件或者软件的中断。硬件可能会随时 通过发送给CPU一个信号 来触发中断，通常会经过系统总线。软件可能会 通过执行特殊的操作 叫做 系统调用 触发中断
 
+when  CPU  is  interrupted , it  stops what is  doing and  immediately transfer execution to a fixed location .The fixed location usually contains a starting address where the service routine for the interrupt is located. The interrupt service routine executes . On completion ,the CPU resumes the  interrupted computation
 
+当CPU被打断了，它会停止当前所做的事情，立马切换到一个固定的位置执行，固定的位置通常包含了 中断服务例程 所处的起始地址，中断服务例程 执行。完成后 CPU恢复被中断的计算
 
+Interrupts  are  an important part of a computer architecture . Each computer design has its own interrupt mechanism ,but several functions are common .The interrupt must transfer control to the appropriate interrupt service routine .The straightforward method for handling this transfer would be to invoke a generic routine to examine interrupt information . The interrupt routine  , in turn , would call the interrupt-specific handler. However interrupts must be handled quickly . Since only a predefined number of interrupts is possible , a table of pointers to interrupt routines can be used  instead to provide  necessary speed . the interrupt routine is called indirectly  through the table with no intermediate routine needed .Generally,table of pointers is stored in slow memory (the first hundred or so locations). These locations hold the addresses of various interrupt service routine . This array ,or interrupt vector of addresses is then  indexed by the unique device number ,given the interrupt request ,to provide the address of the interrupt service routine  for the interrupting device . 
 
+中断是计算机架构的 重要组成部分，每个计算机设计有他的自己的中断机制，但是有几个功能是类似的。中断必须将控制权转移给合适的中断服务例程。处理转移直接的方法可能是执行一个通用例程 去测试 中断信息。中断例程 会依次 调用特定中断处理器。但是中断必须快速处理。因为只有一定 预定义的 数量的中断，可以给中断例程使用指针表提供必要的速度。中断例程通过指针表非直接调用，无需中间例程。大致上指针表存储在内存低地址（前一百个位置）。这些位置 保留各种各样的中断服务例程的地址。然后在给定中断请求中，这个地址数组，或者地址中断向量 由唯一设备号索引，为中断设备提供中断服务程序的地址。
 
