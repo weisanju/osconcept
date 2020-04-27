@@ -446,3 +446,18 @@ Interrupts  are  an important part of a computer architecture . Each computer de
 
 中断是计算机架构的 重要组成部分，每个计算机设计有他的自己的中断机制，但是有几个功能是类似的。中断必须将控制权转移给合适的中断服务例程。处理转移直接的方法可能是执行一个通用例程 去测试 中断信息。中断例程 会依次 调用特定中断处理器。但是中断必须快速处理。因为只有一定 预定义的 数量的中断，可以给中断例程使用指针表提供必要的速度。中断例程通过指针表非直接调用，无需中间例程。大致上指针表存储在内存低地址（前一百个位置）。这些位置 保留各种各样的中断服务例程的地址。然后在给定中断请求中，这个地址数组，或者地址中断向量 由唯一设备号索引，为中断设备提供中断服务程序的地址。
 
+The interrupt architecture must also save the address of the interrupted instruction ,Many old designs simply stored the interrupt address in a fixed location or in  a location indexed by device number .More recent architectures store the return address on the system stack . If interrupt routine needs to modify the processor state- for instancce ,by modifying the register value , It must explicitly save the current state  and then restore that state before returning . After interrupt is serviced , the saved returning address is loaded into the program counter and the interrupted computation resumes as through the interrupt had not occurred.
+
+中断架构 必须同样 保存 被中断指令的 地址，很多旧的设计仅仅 将中断地址存储在一个固定的地点，或者由设备号索引的位置，大多数现代架构将返回地址保存在 系统栈，如果中断例程需要修改处理器状态-例如，修改寄存器的值，它必须显示的保存当前状态，然后在返回前复原状态。当中断被处理后，保存的返回地址会被载入到程序计数器，被中断的计算会复原，就好像中断没有发生一样
+
+### 1.2.2 Storage Structure
+
+The CPU can only load instructions from memory ,so any programs to run must be   stored there. The general-purpose computers run most of their programs  from rewritable memory,called main memory (also called Random Access Memory ). main memory commonly is implemented in semiconductor technology called (Dynamic Random Access Memory ) . computers   use other forms of  memory as well . Because ROM can not  be  changed  , only static programs are stored there . The immutability of ROM  is of use  in game cartridge . The EEPROM can  not be changed  frequently and so contains the mostly static program . For example ,smartphones  hava EEPROM to store their factory-intalled programs.
+
+CPU 只能从内存载入 指令，因此任何要运行的程序必须先存储在这里。通用计算机从可重写内存中 运行他们的大多数的程序，这样的叫 主存（同样叫做 RAM）。主存通常是用半导体技术实现的，这种技术叫做（DRAM)，计算机同样使用其他形式的内存。因为ROM 无法被改变，只有静态的程序存储在这里。ROM的不可变性 可以用在游戏卡带。EEPROM 不能频繁改变，因此可以容纳 大部分是静态的程序。例如，智能手机用 EEPROM去存储 他们的厂家内置 的程序
+
+All forms of memory provide an array of words .Each word has its own address .Interaction is achieved through a sequence of load or store instructions to specific memory addresses . The load instruction move a word from main memory to internal register within the CPU ,whereas the store instruction moves the content of the register  to main memory .  Aside from explicitly loads and stores ,The CPU automatically loads instructions from main memory  for execution. 
+
+所有形式的内存提供单词数组。每一个单词有它自己的地址。通过一序列的 载入或者保存 指令到 特定内存地址 来 完成交互。载入指令把 单词 从主存移动到CPU的内部寄存器，而保存 指令吧寄存器内容 移动到主存。除了显示的 load 和 store，CPU自动的从主存 载入指令 以运行
+
+一个典型的指令- 执行循环
