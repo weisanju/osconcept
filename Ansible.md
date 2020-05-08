@@ -149,9 +149,9 @@ Ansible的 执行动作单位
 
   
 
-# dynamic inventory
+# 动态清单
 
-## description
+description
 
 * 如果你的配置根据需求 时常变动，你可能需要从多个源头 载入hosts，例如云服务提供商，LDAP，Cobber,或者其他企业的CMDB
 * Ansible提供两种方式，连接外部存储
@@ -159,7 +159,98 @@ Ansible的 执行动作单位
   * inventory scripts
 * 红帽的 RedHatAnsibleTower 提供GUI界面编辑与同步，并提供web and Rest服务
 
-## example with Cobber
+example with Cobber
 
 * Ansible能与cobber无缝集成。cobber主要用于OS安装，DHCP,DNS 管理，从当轻量级的CMDB
 
+
+
+# 模式：定位主机和组
+
+* `ansible <pattern> -m <module_name> -a "<module options>""`
+
+* pattern 是 playbook的 hosts 选项
+
+* pattern模式
+
+  | Description            | Pattern(s)                   | Targets                                             |
+  | ---------------------- | ---------------------------- | --------------------------------------------------- |
+  | All hosts              | all (or *)                   |                                                     |
+  | One host               | host1                        |                                                     |
+  | Multiple hosts         | host1:host2 (or host1,host2) |                                                     |
+  | One group              | webservers                   |                                                     |
+  | Multiple groups        | webservers:dbservers         | all hosts in webservers plus all hosts in dbservers |
+  | Excluding groups       | webservers:!atlanta          | all hosts in webservers except those in atlanta     |
+  | Intersection of groups | webservers:&staging          | any hosts in webservers that are also in staging    |
+
+* pattern高级用法
+
+  * 使用变量 ， ansible-playbook， -e 传递的ansible-playbook
+
+  * 使用组定位，
+
+    ```
+    webservers[0]       # == cobweb
+    webservers[-1]      # == weber
+    webservers[0:2]     # == webservers[0],webservers[1]
+                        # == cobweb,webbing
+    webservers[1:]      # == webbing,weber
+    webservers[:3]      # == cobweb,webbing,weber
+    ```
+
+  * 使用正则表达式 ，以 ~ 开头的
+
+  * 在命令行选项指定 --limit 
+
+    * ```
+      ansible-playbook site.yml --limit datacenter2 //指定主机
+      ```
+
+    * ```
+      ansible-playbook site.yml --limit @retry_hosts.txt //指定从文件读主机
+      ```
+
+# 临时命令行
+
+* 语法：`ansible [pattern] -m [module] -a "[module options]"`
+
+* ```
+  重启
+  ansible atlanta -a "/sbin/reboot" -f 10
+  ansible atlanta -a "/sbin/reboot" -f 10 -u username //默认以当前用户运行
+  ansible atlanta -a "/sbin/reboot" -f 10 -u username --become [--ask-become-pass]
+  --ask-become-pass or -K ：提示密码输入
+  shellmode
+  -m 指定命令模块，默认是 commandModule
+  ansible raleigh -m shell -a 'echo $TERM'
+  
+  管理文件
+  copy Mode
+  ansible atlanta -m copy -a "src=/etc/hosts dest=/tmp/hosts"
+  filemode
+  ansible webservers -m file -a "dest=/srv/foo/b.txt mode=600 owner=mdehaan group=mdehaan"
+  ansible webservers -m file -a "dest=/path/to/c mode=755 owner=mdehaan group=mdehaan state=directory"
+  ansible webservers -m file -a "dest=/path/to/c state=absent"
+  
+  管理包
+  ansible webservers -m yum -a "name=acme state=present"
+  ansible webservers -m yum -a "name=acme-1.5 state=present"
+  ansible webservers -m yum -a "name=acme state=latest"
+  //确保 包是没有安装的
+  ansible webservers -m yum -a "name=acme state=absent"
+  
+  管理用户和组
+  ansible all -m user -a "name=foo password=<crypted password here>"
+  ansible all -m user -a "name=foo state=absent"
+  
+  管理服务
+  ansible webservers -m service -a "name=httpd state=started"
+  ansible webservers -m service -a "name=httpd state=restarted"
+  ansible webservers -m service -a "name=httpd state=stopped"
+  
+  收集信息
+  ansible all -m setup
+  
+  //如果没有其他对应的module
+  就是用默认的module，使用shell命令
+  ```
