@@ -2,7 +2,7 @@
 
 ApacheShiro 是*java*的一个安全框架,提供认证,授权,加密,会话管理的解决方案
 
-
+ 
 
 # 功能特点
 
@@ -36,11 +36,60 @@ ApacheShiro 是*java*的一个安全框架,提供认证,授权,加密,会话管�
 
 ## *subject* 
 
-​	访问资源对象的主体
+* 访问资源对象的主体
+* 通过 `Subject currentUser = SecurityUtils.getSubject();`
 
 ## *SecurityManager*
 
-​	*shiro*核心,总控,负责管理所有*subject*,进行认证授权,及会话缓存的管理
+* *shiro*核心,总控,负责管理所有*subject*,进行认证授权,及会话缓存的管理
+
+* 实例化
+
+  * web程序通常通过  *Shiro Servlet Filter* 来实例化
+  * 通常每个应用只有一个 *manager*
+  * 可以通过 ini配置文件,*spring XML*去实例化它
+
+* 配置示例
+
+  ```
+  [main]
+  cm = org.apache.shiro.authc.credential.HashedCredentialsMatcher
+  cm.hashAlgorithm = SHA-512
+  cm.hashIterations = 1024
+  # Base64 encoding (less text):
+  cm.storedCredentialsHexEncoded = false
+  [users]
+  jdoe = TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJpcyByZWFzb2
+  asmith = IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbXNoZWQsIG5vdCB
+  ```
+
+* 更多*INI*配置方法 详见 http://shiro.apache.org/documentation.html
+
+  
+
+* *API*调用
+
+  ```java
+  Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+  SecurityManager manager = factory.getInstance();
+  SecurityUtils.setSecurityManager(manager);
+  ```
+
+## *Realm*
+
+* 有一个或多个*realm* 可以认为是安全实体数据源,用于获取安全实体的对象
+
+* Realm配置 LDAP
+
+  ```
+  [main]
+  ldapRealm = org.apache.shiro.realm.ldap.JndiLdapRealm
+  ldapRealm.userDnTemplate = uid={0},ou=users,dc=mycompany,dc=com
+  ldapRealm.contextFactory.url = ldap://ldapHost:389
+  ldapRealm.contextFactory.authenticationMechanism = DIGEST-MD5
+  ```
+
+  
 
 ## *Authenticator* 
 
@@ -48,17 +97,98 @@ ApacheShiro 是*java*的一个安全框架,提供认证,授权,加密,会话管�
 
 * 可以自定义实现,指定*AuthenticationStrategy*
 
+* 认证有三步
+
+  * 收集用户信息,(*principals*) 和认证信息(*credentials*)
+  * 提交 *principals* 和 *credentials*
+  * 返回结果
+
+* *API*
+
+  ```
+  AuthenticationToken token = new UsernamePasswordToken(username, password);
+  Subject currentUser = SecurityUtils.getSubject();
+  currentUser.login(token);
+  ```
+
+* 当调用 登录方法时,*securityManager* 会将 *token* 发送各个 *realm* 去验证,验证失败后可以 捕获下面异常
+
+  ```
+  //3. Login:
+  try {
+      currentUser.login(token);
+  } catch (IncorrectCredentialsException ice) { …
+  } catch (LockedAccountException lae) { …
+  }
+  …
+  catch (AuthenticationException ae) {…
+  } 
+  ```
+
+  
+
 ## *authrizer*
 
 * 授权器
 
-## *Realm*
+* *API*
 
-* 有一个或多个*realm* 可以认为是安全实体数据源,即用于获取安全实体的
+  * *roleCheck*
+
+    ```java
+    if ( subject.hasRole(“administrator”) ) {
+        //show the ‘Create User’ button
+    } else {
+        //grey-out the button?
+    }
+    ```
+
+  * *Permission Check*
+
+    ```java
+    if ( subject.isPermitted(“user:create”) ) {
+        //show the ‘Create User’ button
+    } else {
+        //grey-out the button?
+    } 
+    ```
+
+    
+
+  * *Instance-Level Permission Check* 实例级别的访问控制
+
+    ```java
+    if ( subject.isPermitted(“user:delete:jsmith”) ) {
+        //delete the ‘jsmith’ user
+    } else {
+        //don’t delete ‘jsmith’
+    }
+    ```
+
+  * [访问控制文档](http://shiro.apache.org/permissions.html)
+
+    
 
 ## *SessionManager*
 
 * 管理*session*的生命周期
+
+* 提供 独立于容器的 分布式*session*解决方案
+
+* *API*
+
+  ```java
+  Session session = subject.getSession();
+  Session session = subject.getSession(boolean create);
+  session.getAttribute(“key”, someValue);
+  Date start = session.getStartTimestamp();
+  Date timestamp = session.getLastAccessTime();
+  session.setTimeout(millis);
+  ```
+
+## *Cryptography*
+
+* 密码模块
 
 ## *sessionDao*
 
@@ -67,10 +197,6 @@ ApacheShiro 是*java*的一个安全框架,提供认证,授权,加密,会话管�
 ## *cacheManager*
 
 * 缓存管理器,缓存用户,角色,权限等
-
-## *Cryptography*
-
-* 密码模块
 
 # Shiro过滤器
 
@@ -126,3 +252,31 @@ manager=user:*,department:*
 guest=user:query,department:query
 其中，每个用户可以拥有多个角色，通过逗号分隔。每个角色可以拥有多个权限，同样通过逗号分隔。
 ```
+
+## web支持
+
+**ShiroFilter in web.xml**
+
+```xml
+<filter>
+    <filter-name>ShiroFilter</filter-name>
+    <filter-class>
+        org.apache.shiro.web.servlet.IniShiroFilter
+    </filter-class>
+    <!-- no init-param means load the INI config
+        from classpath:shiro.ini --> 
+</filter>
+
+<filter-mapping>
+     <filter-name>ShiroFilter</filter-name>
+     <url-pattern>/*</url-pattern>
+</filter-mapping>
+过滤器将会过滤每个 请求,只有满足
+```
+
+## *INI* *URL*过滤器指定
+
+* 右边时过滤器的名字, 有序的逗号分隔, *(anon, user, perms, authc shiro提供的内置过滤器)* 可以自定义
+
+## Web Session Management
+
