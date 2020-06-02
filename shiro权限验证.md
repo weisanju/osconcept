@@ -280,3 +280,124 @@ guest=user:query,department:query
 
 ## Web Session Management
 
+
+
+# 待分类
+
+配置在*INI*文件里的 用户密码认证
+
+```
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+        SecurityManager manager = factory.getInstance();
+        SecurityUtils.setSecurityManager(manager);
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken("lisi", "lisi");
+subject.login(token);
+Assert.assertEquals(true, subject.isAuthenticated()); //断言用户已经登录
+        
+INI
+        [users]
+# admin=admin 分别表示账号和密码，administrator 表示逗号前边的账号拥有 administrator 这个角色。
+admin=admin,administrator
+zhangsan=zhangsan,manager
+lisi=lisi,guest
+```
+
+自定义 Realm 实现
+
+* 实现 *realm* 接口
+
+```
+import org.apache.shiro.authc.*;
+import org.apache.shiro.realm.Realm;
+
+public class MyRealm1 implements Realm {
+    @Override
+    public String getName() {
+        return "myrealm1";
+    }
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        //仅支持UsernamePasswordToken类型的Token
+        return token instanceof UsernamePasswordToken;
+    }
+    @Override
+    public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        String username = (String)token.getPrincipal();  //得到用户名
+        String password = new String((char[])token.getCredentials()); //得到密码
+        if(!"zhang".equals(username)) {
+            throw new UnknownAccountException(); //如果用户名错误
+        }
+        if(!"123".equals(password)) {
+            throw new IncorrectCredentialsException(); //如果密码错误
+        }
+        //如果身份认证验证成功，返回一个AuthenticationInfo实现；
+        return new SimpleAuthenticationInfo(username, password, getName());
+    }
+}
+
+实现Realm 接口
+三个方法
+得到域名
+是否支持该 类型的token验证
+验证:验证失败,抛异常,验证成功返回 AutenticationInfo
+```
+
+* 配置该*realm*
+
+  ```
+  [main]
+  myRealm1=MyRealm1
+  myRealm2=MyRealm2
+  securityManager.realms=$myRealm1,$myRealm2
+  [users]
+  # admin=admin 分别表示账号和密码，administrator 表示逗号前边的账号拥有 administrator 这个角色。
+  admin=admin,administrator
+  zhangsan=zhangsan,manager
+  lisi=lisi,guest
+  ```
+
+* relam的继承图
+![realm继承图](https://i.loli.net/2020/06/02/8ivPcbkfhOa7ydE.png)
+
+* 解析
+
+  * **org.apache.shiro.realm.text.IniRealm**
+
+    主要加载的时 [users] 部分指定用户名 / 密码及其角色；[roles] 部分指定角色即权限信息；
+
+  * **org.apache.shiro.realm.text.PropertiesRealm**
+
+    * user.username=password,role1,role2 指定用户名 / 密码及其角色；
+    * role.role1=permission1,permission2 指定角色及权限信息；
+
+  * **org.apache.shiro.realm.jdbc.JdbcRealm**
+
+    * 通过 sql 查询相应的信息
+
+    * select password from users where username = ?” 获取用户密码
+
+    * “select password, password_salt from users where username = ?” 获取用户密码及盐
+
+    * “select role_name from user_roles where username = ?” 获取用户角色
+
+    * “select permission from roles_permissions where role_name = ?” 获取角色对应的权限信息；
+
+    * 也可以调用相应的 api 进行自定义 sql；
+
+    * jdbcRealm 数据库极其使用
+
+      ```xml
+          <dependency>
+                  <groupId>mysql</groupId>
+                  <artifactId>mysql-connector-java</artifactId>
+                  <version>5.1.25</version>
+              </dependency>
+              <dependency>
+                  <groupId>com.alibaba</groupId>
+                  <artifactId>druid</artifactId>
+                  <version>0.2.23</version>
+              </dependency>
+      ```
+
+      
