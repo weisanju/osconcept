@@ -385,7 +385,7 @@ public class MyRealm1 implements Realm {
 
     * 也可以调用相应的 api 进行自定义 sql；
 
-    * jdbcRealm 数据库极其使用
+    * jdbcRealm 数据库
 
       ```xml
           <dependency>
