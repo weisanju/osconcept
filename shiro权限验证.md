@@ -282,9 +282,9 @@ guest=user:query,department:query
 
 
 
-# 待分类
+# 身份认证
 
-配置在*INI*文件里的 用户密码认证
+## 配置在*INI*文件里的 用户密码认证
 
 ```
         Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
@@ -400,4 +400,95 @@ public class MyRealm1 implements Realm {
               </dependency>
       ```
 
-      
+## Authenticator 及 AuthenticationStrategy
+
+Authenticator 的职责是验证用户帐号
+
+接口方法
+
+```
+public AuthenticationInfo authenticate(AuthenticationToken authenticationToken)            throws AuthenticationException
+```
+
+* 有一个 *ModularRealmAuthenticator*  实现,其委托给多个 *Relam*进行验证 
+
+* 验证规则通过 *AuthenticationStrategy* 接口指定
+
+  * *FirstSuccessfulStrategy* 
+
+    只要有一个*realm* 验证成功即可,只返回第一个realm身份验证成功的认证信息,其他的忽略
+
+  * *AtLeastOneSuccessfulStrategy* 
+
+    只要有一个 Realm 验证成功即可,返回所有 Realm 身份验证成功的认证信息
+
+  * *AllSuccessfulStrategy*
+
+    所有 Realm 验证成功才算成功,且返回所有 Realm 身份验证成功的认证信息
+
+  * *ModularRealmAuthenticator* 默认使用 *AtLeastOneSuccessfulStrategy* 策略
+  * 返回时 若 *principal* 身份信息发生变化,则 可以通过  *subject.getPrincipals* 来获取
+
+* 自定义 AuthenticationStrategy 实现
+
+  * *beforeAllAttempts*
+  * *beforeAttempt*
+  * *afterAttempt*
+  * *afterAllAttempts*
+
+  * 因为每个 *AuthenticationStrategy* 实例都是无状态的，所有每次都通过接口将相应的认证信息(*Collection<? extends Realm>*)传入下一次流程；通过如上接口可以进行如合并 / 返回第一个验证成功的认证信息
+
+  
+
+## 授权(access controll)
+
+Shiro 支持三种方式 权限检查
+
+* *checkRole/checkRoles 和 hasRole/hasAllRoles* , *isPermitted 和 isPermittedAll* 用于判断用户是否拥有某个权限或所有权限
+
+* *@RequiresRoles("admin")*
+
+* jsp标签:
+
+  ```xml
+  <shiro:hasRole name="admin">
+  <!— 有权限 —>
+  </shiro:hasRole>
+  ```
+
+角色,权限,资源,操作
+
+用户名=密码,角色1，角色2  
+
+角色=权限 1，权限 2权限1=资源:操作
+
+*permission*
+
+字符串通配符权限
+
+资源规则: 资源标识符:操作:对象实例ID,即 对哪个资源的哪个实例可以进行什么操作
+
+默认支持通配符
+
+冒号表示资源/操作/实例的分割
+
+逗号表示操作的分割
+
+星号表示任意资源/操作/实例
+
+单个资源单个权限
+
+*subject().checkPermissions("system:user:update");*
+
+单个资源多个权限
+
+*role41=system:user:update,system:user:delete*
+
+*subject().checkPermissions("system:user:update", "system:user:delete");*
+
+简写
+
+*role42="system:user:update,delete"*
+
+*subject().checkPermissions("system:user:update,delete");*
+
