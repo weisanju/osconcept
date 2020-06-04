@@ -382,7 +382,7 @@ public class MyRealm1 implements Realm {
     * “select role_name from user_roles where username = ?” 获取用户角色
 
     * “select permission from roles_permissions where role_name = ?” 获取角色对应的权限信息；
-
+  
     * 也可以调用相应的 api 进行自定义 sql；
 
     * jdbcRealm 数据库
@@ -438,6 +438,14 @@ public AuthenticationInfo authenticate(AuthenticationToken authenticationToken) 
 
   * 因为每个 *AuthenticationStrategy* 实例都是无状态的，所有每次都通过接口将相应的认证信息(*Collection<? extends Realm>*)传入下一次流程；通过如上接口可以进行如合并 / 返回第一个验证成功的认证信息
 
+  ```
+  authenticator=org.apache.shiro.authc.pam.ModularRealmAuthenticator
+  securityManager.authenticator=$authenticator
+  \#指定securityManager.authenticator的authenticationStrategy
+  allSuccessfulStrategy=org.apache.shiro.authc.pam.AllSuccessfulStrategy
+  securityManager.authenticator.authenticationStrategy=$allSuccessfulStrategy
+  ```
+  
   
 
 ## 授权(access controll)
@@ -491,4 +499,28 @@ Shiro 支持三种方式 权限检查
 *role42="system:user:update,delete"*
 
 *subject().checkPermissions("system:user:update,delete");*
+
+授权流程
+
+调用 `Subject.isPermitted*/hasRole*`接口 
+
+->委托给 SecurityManager
+
+->SecurityManager 接着会委托给 Authorizer；
+
+->Authorizer 是真正的授权者，如果我们调用如 isPermitted(“user:view”),会通过 PermissionResolver 把字符串转换成相应的 Permission 实例
+
+->在进行授权之前，其会调用相应的 Realm 获取 Subject 相应的角色/权限
+
+->Authorizer 会判断 Realm 的角色/权限是否和传入的匹配，如果有多个 Realm，会委托给 ModularRealmAuthorizer 进行循环判断
+
+->ModularRealmAuthorizer 进行多 Realm 匹配流程
+
+​	->首先检查相应的 Realm 是否实现了实现了 Authorizer
+
+​	->如果实现了 Authorizer，那么接着调用其相应的 `isPermitted*/hasRole*` 接口进行匹配
+
+​	->如果有一个 Realm 匹配那么将返回 true，否则返回 false
+
+->如果 Realm 进行授权的话，应该继承 AuthorizingRealm，其流程是
 
