@@ -1,0 +1,24 @@
+@startuml HTTPS通信过程
+actor "客户端(浏览器)" as client order 20
+participant 服务器  as server order  30
+participant CA机构  as ca order 10
+client -> server:请求Https连接
+server ->client:返回证书(公钥)
+client -> ca:去CA认证该服务器证书
+ca->ca:校验证书
+ca->client:返回成功
+client -> client:产生随机的密钥a(对称)\n使用公钥对 随机密钥a加密
+client->server:发送加密后的随机密钥a
+server->client:使用密钥a对数据对称加密
+@enduml
+
+@startuml CA机构签发过程
+    actor   证书申请者 as req 
+    participant 认证机构 as ca
+
+    req->req:构建密钥对
+    req->ca:发送密钥算法,公钥,个人信息
+    ca->ca:核实用户信息
+    ca->req:颁发数字证书
+
+@enduml
