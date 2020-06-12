@@ -16,3 +16,9 @@ participant SP order 30
     SP->IDP:带着token去IDP获取相关认证消息
     IDP->SP:返回登录用户的信息
 @enduml
+
+
+
+@startuml shiro异常继承图
+    ShiroException	<|--  RuntimeException
+@enduml
