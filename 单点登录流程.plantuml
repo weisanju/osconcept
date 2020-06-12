@@ -1,0 +1,24 @@
+@startuml SSO
+autonumber
+box "客户方"
+actor  user order 10 #red 
+participant IDP order 20
+end box
+participant SP order 30
+
+    user -> SP:访问页面
+    SP -> user: 重定向到IDP,并带有SAMLRequet
+    user -> IDP:用户带有 SAMLRequest到IDP去认证
+    IDP-> user :返回一个登录界面
+    user->IDP:用户认证信息输入完成
+    IDP -> user : 认证成功,返回 SAMLarch(token令牌字符串)
+    user -> SP:重定向到SP,带有 IDP的断言响应
+    SP->IDP:带着token去IDP获取相关认证消息
+    IDP->SP:返回登录用户的信息
+@enduml
+
+
+
+@startuml shiro异常继承图
+    ShiroException	<|--  RuntimeException
+@enduml
