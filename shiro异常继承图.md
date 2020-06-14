@@ -650,11 +650,3 @@ AuthenticationToken
 *BasicIniEnvironment*
 
 * shiro入口方法
-
-
-
-# SecurityManager构建
-
-*IniFactorySupport*
-
-* 
