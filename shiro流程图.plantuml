@@ -1,0 +1,20 @@
+@startuml shiro登录流程
+    start
+    :Subject.login();
+    note left:主体对象登录
+    -> 委托登录验证;
+    :安全管理者登录;
+    -> 委托登录验证;
+    :模块化域登录;
+    if (包含多个域) then (yes)
+    while (next 域?)
+        :验证账户;
+        :验证密码;
+    endwhile;
+    else (单域)
+        :验证账户;
+        :验证密码;
+    endif
+    end
+    
+@enduml
