@@ -1,4 +1,0 @@
-tcpdump
-
-jq
-

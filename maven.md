@@ -1514,7 +1514,9 @@ mvn release:perform
 
 ```
 
-# *maven*配置 *mybatis*  逆向工程
+# maven使用案例
+
+## *maven*配置 *mybatis*  逆向工程
 
 
 
@@ -1651,7 +1653,7 @@ mvn release:perform
 
 
 
-# *maven*配置 lib依赖 配置 与包分离
+## *maven*配置 lib依赖 配置 与包分离
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1783,7 +1785,7 @@ mvn release:perform
 
 
 
-# maven多模块配置
+## maven多模块配置
 
 ```
 父模块指定子模块
@@ -1800,7 +1802,7 @@ mvn release:perform
 	</parent>
 ```
 
-# Maven中的dependencyManagement 
+## Maven中的dependencyManagement 
 
 ```
 //只是对版本进行管理，不会实际引入jar  
@@ -1825,10 +1827,25 @@ mvn release:perform
 
 
 
-# maven编译 java源码等级
+## maven编译 java源码等级
 
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.3</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
-
-
+## maven运行本地模板
 
 运行 MVN 命令的时候加上 **-DarchetypeCatalog=local** 这个参数。在 IDEA 中：
+
