@@ -873,5 +873,112 @@ Customizing Instantiation Logic with a factoryBean
 
 实现自定义 bean定义 逻辑
 
+## Annotation-based Container Configuration
 
+* 基于注解的注入 比XML 注入更早执行,所以xml的注入会覆盖注解的注入
+* 基于注解的注入实际上是 一个个beanPostProcessor
+* 隐式注册这些beanPostProcessor :  <context:annotation-config/>
+  *  [`AutowiredAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html)
+  * [`CommonAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/context/annotation/CommonAnnotationBeanPostProcessor.html)
+  * [`PersistenceAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/orm/jpa/support/PersistenceAnnotationBeanPostProcessor.html) 
+  * [`RequiredAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html)
+
+​	@Required标识该setter方法的注入必须, 已过期,推荐使用构造器注入
+
+```
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Required
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    // ...
+}
+```
+
+@Autowired
+
+构造方法上(当 只有一个构造方法时,不是很必要)
+
+```java
+public class MovieRecommender {
+
+    private final CustomerPreferenceDao customerPreferenceDao;
+
+    @Autowired
+    public MovieRecommender(CustomerPreferenceDao customerPreferenceDao) {
+        this.customerPreferenceDao = customerPreferenceDao;
+    }
+}
+```
+
+setter注入
+
+```
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Autowired
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    // ...
+}
+```
+
+字段注入
+
+```java
+ @Autowired
+    private MovieCatalog movieCatalog;
+```
+
+可以注入某一类Bean
+
+可以@Order或者order接口,实现注入的排序,否则顺序以注册顺序为准,@Order也会影响依赖注入顺序
+
+```java
+public class MovieRecommender {
+    @Autowired
+    private MovieCatalog[] movieCatalogs;
+}
+public class MovieRecommender {
+    private Set<MovieCatalog> movieCatalogs;
+    @Autowired
+    public void setMovieCatalogs(Set<MovieCatalog> movieCatalogs) {
+        this.movieCatalogs = movieCatalogs;
+    }
+}
+```
+
+Map注入
+
+这回注入所有 beanname,和某一类型的bean
+
+```java
+public class MovieRecommender {
+    private Map<String, MovieCatalog> movieCatalogs;
+    @Autowired
+    public void setMovieCatalogs(Map<String, MovieCatalog> movieCatalogs) {
+        this.movieCatalogs = movieCatalogs;
+    }
+}
+```
+
+可以不启用
+
+```
+public class SimpleMovieLister {
+    private MovieFinder movieFinder;
+    @Autowired(required = false)
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+}
+```
 
