@@ -883,7 +883,9 @@ Customizing Instantiation Logic with a factoryBean
   * [`PersistenceAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/orm/jpa/support/PersistenceAnnotationBeanPostProcessor.html) 
   * [`RequiredAnnotationBeanPostProcessor`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html)
 
-​	@Required标识该setter方法的注入必须, 已过期,推荐使用构造器注入
+### 	@Required
+
+标识该setter方法的注入必须, 已过期,推荐使用构造器注入
 
 ```
 public class SimpleMovieLister {
@@ -899,7 +901,7 @@ public class SimpleMovieLister {
 }
 ```
 
-@Autowired
+### @Autowired
 
 构造方法上(当 只有一个构造方法时,不是很必要)
 
@@ -982,3 +984,652 @@ public class SimpleMovieLister {
 }
 ```
 
+注入Optional类
+
+```java
+public class SimpleMovieLister {
+    @Autowired
+    public void setMovieFinder(Optional<MovieFinder> movieFinder) {
+    }
+}
+```
+
+可以使用@nullable
+
+```java
+    @Autowired
+    public void setMovieFinder(@Nullable MovieFinder movieFinder) {
+        ...
+    }
+```
+
+可以注入spring相关的bean
+
+```
+BeanFactory, ApplicationContext, Environment, ResourceLoader, ApplicationEventPublisher, and MessageSource
+ConfigurableApplicationContext or ResourcePatternResolver
+public class MovieRecommender {
+
+    @Autowired
+    private ApplicationContext context;
+
+    public MovieRecommender() {
+    }
+}
+```
+
+**注意事项**
+
+* 一个bean可能有多个 构造器, 但只有一个 构造器能 @Autowired(required = true),其他的必须是false
+* 通过 匹配容器中的bean 满足依赖关系最多的 构造器 将会被使用,如果都不满足 使用默认构造器
+* '@Autowired`, `@Inject`, `@Value`, and `@Resource' 这些注入 不能用于BeanPostProcessor或者BeanFactoryPostProcessor
+
+### @Primary
+
+* 通过类型注册可能有多个类型的候选者,可以使用primary指定
+
+```java
+@Configuration
+public class MovieConfiguration {
+
+    @Bean
+    @Primary
+    public MovieCatalog firstMovieCatalog() { ... }
+
+    @Bean
+    public MovieCatalog secondMovieCatalog() { ... }
+
+    // ...
+}
+```
+
+xml配置
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <bean class="example.SimpleMovieCatalog" primary="true">
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="example.SimpleMovieCatalog">
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean id="movieRecommender" class="example.MovieRecommender"/>
+
+</beans>
+```
+
+### @Qualifiers
+
+* 与id不同,类似于 手动给定bean分类, 类似于某种bean的过滤器
+
+* 这在注入 集合类的时候 作用尤为明显 `Set<MovieCatalog>`
+* 如果没有其他指示器(类似primary,qualifier) ,而且存在多个候选者,则spring会根据 注入字段名或参数名匹配bean
+* 如果你想通过bean名匹配,最好使用@Resource, @Autowired的语义是:先找同类型的,然后寻找指定的Qualifer
+* 可以通过@Resource引用集合
+* qualifier可以自引用,但顺序是最后的
+
+```java
+public class MovieRecommender {
+
+    @Autowired
+    @Qualifier("main")
+    private MovieCatalog movieCatalog;
+
+    // ...
+}
+
+
+public class MovieRecommender {
+
+    private MovieCatalog movieCatalog;
+
+    private CustomerPreferenceDao customerPreferenceDao;
+
+    @Autowired
+    public void prepare(@Qualifier("main") MovieCatalog movieCatalog,
+            CustomerPreferenceDao customerPreferenceDao) {
+        this.movieCatalog = movieCatalog;
+        this.customerPreferenceDao = customerPreferenceDao;
+    }
+
+    // ...
+}
+```
+
+xml配置
+
+```hxml
+ <bean class="example.SimpleMovieCatalog">
+        <qualifier value="main"/> 
+
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+```
+
+**创建自己的qualifier注解**,给qualifier分类
+
+```java
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Genre {
+
+    String value();
+}
+```
+
+使用注解
+
+```java
+public class MovieRecommender {
+
+    @Autowired
+    @Genre("Action")
+    private MovieCatalog actionCatalog;
+
+    private MovieCatalog comedyCatalog;
+
+    @Autowired
+    public void setComedyCatalog(@Genre("Comedy") MovieCatalog comedyCatalog) {
+        this.comedyCatalog = comedyCatalog;
+    }
+
+    // ...
+}
+```
+
+可以使用短类名,或者全限定类名
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <bean class="example.SimpleMovieCatalog">
+        <qualifier type="Genre" value="Action"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="example.SimpleMovieCatalog">
+        <qualifier type="example.Genre" value="Comedy"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean id="movieRecommender" class="example.MovieRecommender"/>
+
+</beans>
+```
+
+给qualifier添加类别,属性
+
+```java
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface MovieQualifier {
+
+    String genre();
+
+    Format format();
+}
+public enum Format {
+    VHS, DVD, BLURAY
+}
+```
+
+按照分类注入
+
+```java
+public class MovieRecommender {
+
+    @Autowired
+    @MovieQualifier(format=Format.VHS, genre="Action")
+    private MovieCatalog actionVhsCatalog;
+
+    @Autowired
+    @MovieQualifier(format=Format.VHS, genre="Comedy")
+    private MovieCatalog comedyVhsCatalog;
+
+    @Autowired
+    @MovieQualifier(format=Format.DVD, genre="Action")
+    private MovieCatalog actionDvdCatalog;
+
+    @Autowired
+    @MovieQualifier(format=Format.BLURAY, genre="Comedy")
+    private MovieCatalog comedyBluRayCatalog;
+
+    // ...
+}
+```
+
+同样可以使用meta标签 简写 qualifier标签,会自动查找该qualifier的值
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <bean class="example.SimpleMovieCatalog">
+        <qualifier type="MovieQualifier">
+            <attribute key="format" value="VHS"/>
+            <attribute key="genre" value="Action"/>
+        </qualifier>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="example.SimpleMovieCatalog">
+        <qualifier type="MovieQualifier">
+            <attribute key="format" value="VHS"/>
+            <attribute key="genre" value="Comedy"/>
+        </qualifier>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="example.SimpleMovieCatalog">
+        <meta key="format" value="DVD"/>
+        <meta key="genre" value="Action"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="example.SimpleMovieCatalog">
+        <meta key="format" value="BLURAY"/>
+        <meta key="genre" value="Comedy"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+</beans>
+```
+
+### Using Generics
+
+使用泛型自动注入
+
+假设下面的类 实现了 某个泛型接口
+
+```j
+Store<String>` and `Store<Integer>
+```
+
+
+
+```java
+@Configuration
+public class MyConfiguration {
+
+    @Bean
+    public StringStore stringStore() {
+        return new StringStore();
+    }
+
+    @Bean
+    public IntegerStore integerStore() {
+        return new IntegerStore();
+    }
+}
+
+
+@Autowired
+private Store<String> s1; // <String> qualifier, injects the stringStore bean
+
+@Autowired
+private Store<Integer> s2; // <Integer> qualifier, injects the integerStore bean
+```
+
+泛型同样支持 集合类
+
+```java
+@Autowired
+private List<Store<Integer>> s;
+```
+
+### CustomAutowireConfigurer
+
+*`CustomAutowireConfigurer` 是一个 BeanFactoryPostProcessor*  可以让你注册自己的 qualifier
+
+xml配置
+
+```xml
+<bean id="customAutowireConfigurer"
+        class="org.springframework.beans.factory.annotation.CustomAutowireConfigurer">
+    <property name="customQualifierTypes">
+        <set>
+            <value>example.CustomQualifier</value>
+        </set>
+    </property>
+</bean>
+```
+
+*AutowireCandidateResolver* (QualifierAnnotationAutowireCandidateResolver)选取候选者的方式
+
+* autowire-candidate 每一个bean的 自动注入候选者
+* 在`<beans>`中的 default-autowire-candidates
+* @qualifier的限定类
+* CustomAutowireConfigurer 中的候选类
+
+### @Resource
+
+* 如果没有指定名字 取 方法参数名或者 字段名
+* 名称是由 ApplicationContext 提供查找(由CommonAnnotationBeanPostProcessor 注入)
+
+### @Value
+
+注入外部属性
+
+```java
+@Component
+public class MovieRecommender {
+
+    private final String catalog;
+
+    public MovieRecommender(@Value("${catalog.name}") String catalog) {
+        this.catalog = catalog;
+    }
+}
+
+@Configuration
+@PropertySource("classpath:application.properties")
+public class AppConfig { }
+
+catalog.name=MovieCatalog
+```
+
+如果想要严格控制 不存在的值可以如下申明
+
+```java
+@Configuration
+public class AppConfig {
+
+     @Bean
+     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
+           return new PropertySourcesPlaceholderConfigurer();
+     }
+}
+
+```
+
+* 当配置这个JavaConfig Bean时,必须是static
+* 可以设置前缀后缀 分隔符,setPlaceholderPrefix`, `setPlaceholderSuffix`, or `setValueSeparator
+* *PropertySourcesPlaceholderConfigurer* springboot自动带一个,会从 application.properties` and `application.yml解析
+
+* 值转换的过程 可以自定义ConversionService
+
+  ```java
+  @Configuration
+  public class AppConfig {
+  
+      @Bean
+      public ConversionService conversionService() {
+          DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+          conversionService.addConverter(new MyCustomConverter());
+          return conversionService;
+      }
+  }
+  ```
+
+* 支持 EL表达式
+
+  ```java
+  @Component
+  public class MovieRecommender {
+  
+      private final String catalog;
+  
+      public MovieRecommender(@Value("#{systemProperties['user.catalog'] + 'Catalog' }") String catalog) {
+          this.catalog = catalog;
+      }
+  }
+  
+  @Component
+  public class MovieRecommender {
+  
+      private final Map<String, Integer> countOfMoviesPerCatalog;
+  
+      public MovieRecommender(
+              @Value("#{{'Thriller': 100, 'Comedy': 300}}") Map<String, Integer> countOfMoviesPerCatalog) {
+          this.countOfMoviesPerCatalog = countOfMoviesPerCatalog;
+      }
+  }
+  ```
+
+### @PostConstruct @PreDestroy
+
+* 这两个注解也是 *CommonAnnotationBeanPostProcessor* 实现的
+*  `@Resource`, the `@PostConstruct` and `@PreDestroy`  这个在 java9被移包,在11被分离需要手动引入javax.annotation-api
+
+
+
+## 类路径扫描,容器管理
+
+### Component
+
+模板注解,@Repository`, `@Service`, and `@Controller是 它的特例,目前没有什么区别,以后可能会增加区别
+
+### 使用元注解或组合注解
+
+元注解
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component 
+public @interface Service {
+
+    // ...
+}
+
+Component 导致 service 跟 component同样对待
+```
+
+组合注解
+
+@RestController等价于 @Controller` and `@ResponseBody
+
+元注解可以重新申明 属性自定义属性的值
+
+```java
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Scope(WebApplicationContext.SCOPE_SESSION)
+public @interface SessionScope {
+
+    /**
+     * Alias for {@link Scope#proxyMode}.
+     * <p>Defaults to {@link ScopedProxyMode#TARGET_CLASS}.
+     */
+    @AliasFor(annotation = Scope.class)
+    ScopedProxyMode proxyMode() default ScopedProxyMode.TARGET_CLASS;
+
+}
+
+@Service
+@SessionScope
+public class SessionScopedService {
+    // ...
+}
+```
+
+### 自动注册bean定义
+
+spring会自动注册带有 模板注解component的类,并生成相应的bean定义 在applicationContext中
+
+```java
+@Service
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    public SimpleMovieLister(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+}
+```
+
+为了自动注册上面的类型必须 要在 带有 @Configuration的 类中 申明 ,包扫描,包之间可以用 空格, 逗号,冒号
+
+```java
+@Configuration
+@ComponentScan(basePackages = "org.example")
+public class AppConfig  {
+    // ...
+}
+
+//@ComponentScan("org.example")简写形式
+
+//xml 形式
+ <context:component-scan base-package="org.example"/>
+ 它会激活 <context:annotation-config>注解
+```
+
+使用Ant编译工程时, you do not activate the files-only switch of the JAR task
+
+同时 AutowiredAnnotationBeanPostProcessor` and `CommonAnnotationBeanPostProcessor这两个beanPostProcessor也会被注册
+
+```
+You can disable the registration of AutowiredAnnotationBeanPostProcessor and CommonAnnotationBeanPostProcessor by including the annotation-config attribute with a value of false.
+```
+
+### 使用过滤器 自定义扫描
+
+* '@Component`, `@Repository`, `@Service`, `@Controller`, `@Configuration'默认只扫描带有这些注解的类 
+
+* 通过ComponentScan的 includeFilters ,excludeFilters 属性 设定不同类型的过滤器去 取 或者排除 相应的类
+
+* 过滤器的类型
+
+  | ilter Type           | Example Expression           | Description                                                  |
+  | :------------------- | :--------------------------- | :----------------------------------------------------------- |
+  | annotation (default) | `org.example.SomeAnnotation` | 指定  注释类上或者元类上的注解类                             |
+  | assignable           | `org.example.SomeClass`      | A class (or interface) that the target components are assignable to (extend or implement). |
+  | aspectj              | `org.example..*Service+`     | 使用 aspectj注入语法                                         |
+  | regex                | `org\.example\.Default.*`    | 使用正则匹配类全限定名                                       |
+  | custom               | `org.example.MyTypeFilter`   | A custom implementation of the `org.springframework.core.type.TypeFilter` interface. |
+
+* 使用
+
+  ```java
+  @Configuration
+  @ComponentScan(basePackages = "org.example",
+          includeFilters = @Filter(type = FilterType.REGEX, pattern = ".*Stub.*Repository"),
+          excludeFilters = @Filter(Repository.class))
+  public class AppConfig {
+      ...
+  }
+  ```
+
+  ```xml
+  <beans>
+      <context:component-scan base-package="org.example">
+          <context:include-filter type="regex"
+                  expression=".*Stub.*Repository"/>
+          <context:exclude-filter type="annotation"
+                  expression="org.springframework.stereotype.Repository"/>
+      </context:component-scan>
+  </beans>
+  
+  ```
+
+  
+
+* 'useDefaultFilters=false use-default-filters="false"' 可以使得系统不会自动 *`@Component`, `@Repository`, `@Service`, `@Controller`, `@RestController`, or `@Configuration`.* 扫描这些注解
+
+### 使用component定义元数据
+
+* 可以使用component定义元数据
+* 方法级别的bean定义,类似于 提供一个工厂方法
+
+```java
+@Component
+public class FactoryMethodComponent {
+
+    @Bean
+    @Qualifier("public")
+    public TestBean publicInstance() {
+        return new TestBean("publicInstance");
+    }
+
+    public void doWork() {
+        // Component method implementation omitted
+    }
+}
+```
+
+```java
+@Component
+public class FactoryMethodComponent {
+
+    private static int i;
+
+    @Bean
+    @Qualifier("public")
+    public TestBean publicInstance() {
+        return new TestBean("publicInstance");
+    }
+
+    // use of a custom qualifier and autowiring of method parameters
+    @Bean
+    protected TestBean protectedInstance(
+            @Qualifier("public") TestBean spouse,
+            @Value("#{privateInstance.age}") String country) {
+        TestBean tb = new TestBean("protectedInstance", 1);
+        tb.setSpouse(spouse);
+        tb.setCountry(country);
+        return tb;
+    }
+
+    @Bean
+    private TestBean privateInstance() {
+        return new TestBean("privateInstance", i++);
+    }
+
+    @Bean
+    @RequestScope
+    public TestBean requestScopedInstance() {
+        return new TestBean("requestScopedInstance", 3);
+    }
+}
+```
+
+```java
+@Component
+public class FactoryMethodComponent {
+
+    @Bean @Scope("prototype")
+    public TestBean prototypeInstance(InjectionPoint injectionPoint) {
+        return new TestBean("prototypeInstance for " + injectionPoint.getMember());
+    }
+}
+```
+
+As of Spring Framework 4.3,可以使用 InjectionPoint(DependencyDescriptor更详细的子类) 可以访问到请求注入点,当然这适用于 原型作用域,
+
+* 在普通 component的 @bean与 @configuration的@Bean不同
+  * configuration 中 cglib会对其增强, 参与到spring容器的生命周期来
+  * component 没有其他语义
