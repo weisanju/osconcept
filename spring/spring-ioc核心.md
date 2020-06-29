@@ -1631,5 +1631,715 @@ public class FactoryMethodComponent {
 As of Spring Framework 4.3,可以使用 InjectionPoint(DependencyDescriptor更详细的子类) 可以访问到请求注入点,当然这适用于 原型作用域,
 
 * 在普通 component的 @bean与 @configuration的@Bean不同
-  * configuration 中 cglib会对其增强, 参与到spring容器的生命周期来
-  * component 没有其他语义
+  * configuration 中 cglib会对其增强, 通过 代理@bean方法的调用来创建元数据引用
+  * component 下的@bean是正常的java语义
+  * 由于CGLIB需要继承 该类,所以@bean方法不能是final和 private,可以设置成 static,这样避免spring拦截
+
+### componet自动命名
+
+* 自动命名取 短类名
+* 如果命名重复  [`BeanNameGenerator`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/beans/factory/support/BeanNameGenerator.html) 可以注册这个类实现自定义自动命名它的子类为,FullyQualifiedAnnotationBeanNameGenerator
+
+```java
+@Configuration
+@ComponentScan(basePackages = "org.example", nameGenerator = MyNameGenerator.class)
+public class AppConfig {
+    // ...
+}
+```
+
+```xml
+<beans>
+    <context:component-scan base-package="org.example"
+        name-generator="org.example.MyNameGenerator" />
+</beans>
+```
+
+### component设置作用域
+
+```java
+@Scope("prototype")
+@Repository
+public class MovieFinderImpl implements MovieFinder {
+    // ...
+}
+```
+
+扫描特定作用域
+
+实现 [`ScopeMetadataResolver`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/context/annotation/ScopeMetadataResolver.html) 
+
+```java
+@Configuration
+@ComponentScan(basePackages = "org.example", scopeResolver = MyScopeResolver.class)
+public class AppConfig {
+    // ...
+}
+```
+
+扫描特定 作用域代理方式
+
+```java
+@Configuration
+@ComponentScan(basePackages = "org.example", scopedProxy = ScopedProxyMode.INTERFACES)
+public class AppConfig {
+    // ...
+}
+```
+
+### Qualifier标注Component
+
+```java
+@Component
+@Qualifier("Action")
+public class ActionMovieCatalog implements MovieCatalog {
+    // ...
+}
+```
+
+
+
+### 产生候选组件索引
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-indexer</artifactId>
+        <version>5.2.7.RELEASE</version>
+        <optional>true</optional>
+    </dependency>
+</dependencies>
+```
+
+在编译期产生 候选者的索引,可以避免在类路径扫描,提升查找速度
+
+```kotlin
+dependencies {
+    compileOnly "org.springframework:spring-context-indexer:5.2.7.RELEASE"
+}
+```
+
+* 会产生  META-INF/spring.components 文件
+* spring-context-indexer必须要注册到容器中来
+* 如果类路径下 META-INF/spring.components 有这个文件,且有相关依赖,则该特性会被激活,spring.index.ignore可以关闭
+
+## 使用JSR330标准注解
+
+* 需要引入
+
+  ```xml
+  <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+  </dependency>
+  ```
+
+### 依赖注入:Inject,Named
+
+```java
+import javax.inject.Inject;
+
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Inject
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    public void listMovies() {
+        this.movieFinder.findMovies(...);
+        // ...
+    }
+}
+```
+
+### provider注入
+
+可以注入 Provider包装的类, 提供懒加载,按需加载
+
+```java
+import javax.inject.Inject;
+import javax.inject.Provider;
+
+public class SimpleMovieLister {
+
+    private Provider<MovieFinder> movieFinder;
+
+    @Inject
+    public void setMovieFinder(Provider<MovieFinder> movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    public void listMovies() {
+        this.movieFinder.get().findMovies(...);
+        // ...
+    }
+}
+```
+
+### Optional注入
+
+注入Optional 包装类,或者使用@nullable
+
+```jav
+public class SimpleMovieLister {
+
+    @Inject
+    public void setMovieFinder(Optional<MovieFinder> movieFinder) {
+        // ...
+    }
+}
+```
+
+### named注入
+
+名称注入named
+
+```java
+import javax.inject.Inject;
+import javax.inject.Named;
+
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Inject
+    public void setMovieFinder(@Named("main") MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    // ...
+}
+```
+
+###  @named,@ManagedBean
+
+与Component相同的 @named,@ManagedBean,二者不可组合
+
+```java
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("movieListener")  // @ManagedBean("movieListener") could be used as well
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Inject
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    // ...
+}
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
+public class SimpleMovieLister {
+
+    private MovieFinder movieFinder;
+
+    @Inject
+    public void setMovieFinder(MovieFinder movieFinder) {
+        this.movieFinder = movieFinder;
+    }
+
+    // ...
+}
+```
+
+### JSR330注解限制
+
+| Spring              | javax.inject.*        | javax.inject restrictions / comments                         |
+| :------------------ | :-------------------- | :----------------------------------------------------------- |
+| @Autowired          | @Inject               | `@Inject` has no 'required' attribute. Can be used with Java 8’s `Optional` instead. |
+| @Component          | @Named / @ManagedBean | JSR-330 does not provide a composable model, only a way to identify named components. |
+| @Scope("singleton") | @Singleton            | The JSR-330 default scope is like Spring’s `prototype`. However, in order to keep it consistent with Spring’s general defaults, a JSR-330 bean declared in the Spring container is a `singleton` by default. In order to use a scope other than `singleton`, you should use Spring’s `@Scope` annotation. `javax.inject` also provides a [@Scope](https://download.oracle.com/javaee/6/api/javax/inject/Scope.html) annotation. Nevertheless, this one is only intended to be used for creating your own annotations. |
+| @Qualifier          | @Qualifier / @Named   | `javax.inject.Qualifier` is just a meta-annotation for building custom qualifiers. Concrete `String` qualifiers (like Spring’s `@Qualifier` with a value) can be associated through `javax.inject.Named`. |
+| @Value              | -                     | no equivalent                                                |
+| @Required           | -                     | no equivalent                                                |
+| @Lazy               | -                     | no equivalent                                                |
+| ObjectFactory       | Provider              | `javax.inject.Provider` is a direct alternative to Spring’s `ObjectFactory`, only with a shorter `get()` method name. It can also be used in combination with Spring’s `@Autowired` or with non-annotated constructors and setter methods. |
+
+## 基于Java的注解.
+
+### 实例化 注解配置容器
+
+`AnnotationConfigApplicationContext` 
+
+* 这个通用的applicationContext可以接受@configuration的配置,也可以接受@Component的注解
+* 带有@configuration注解的类被解析成 bean定义,@bean也会被解析成bean定义
+
+实例化
+
+```java
+public static void main(String[] args) {
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
+    MyService myService = ctx.getBean(MyService.class);
+    myService.doStuff();
+}
+
+public static void main(String[] args) {
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(MyServiceImpl.class, Dependency1.class, Dependency2.class);
+    MyService myService = ctx.getBean(MyService.class);
+    myService.doStuff();
+}
+```
+
+编程方式实例化
+
+```java
+public static void main(String[] args) {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(AppConfig.class, OtherConfig.class);
+    ctx.register(AdditionalConfig.class);
+    ctx.refresh();
+    MyService myService = ctx.getBean(MyService.class);
+    myService.doStuff();
+}
+```
+
+扫描
+
+```java
+public static void main(String[] args) {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.scan("com.acme");
+    ctx.refresh();
+    MyService myService = ctx.getBean(MyService.class);
+}
+
+@Configuration
+@ComponentScan(basePackages = "com.acme") 
+public class AppConfig  {
+    ...
+}
+```
+
+web应用 `AnnotationConfigWebApplicationContext`
+
+* 'WebApplicationContext'的变体 `AnnotationConfigWebApplicationContext` 来配置spring的 ContextLoaderListener servlet
+* Spring MVC `DispatcherServlet`
+
+```xml
+<web-app>
+    <!-- Configure ContextLoaderListener to use AnnotationConfigWebApplicationContext
+        instead of the default XmlWebApplicationContext -->
+    <context-param>
+        <param-name>contextClass</param-name>
+        <param-value>
+            org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+        </param-value>
+    </context-param>
+
+    <!-- Configuration locations must consist of one or more comma- or space-delimited
+        fully-qualified @Configuration classes. Fully-qualified packages may also be
+        specified for component-scanning -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>com.acme.AppConfig</param-value>
+    </context-param>
+
+    <!-- Bootstrap the root application context as usual using ContextLoaderListener -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Declare a Spring MVC DispatcherServlet as usual -->
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- Configure DispatcherServlet to use AnnotationConfigWebApplicationContext
+            instead of the default XmlWebApplicationContext -->
+        <init-param>
+            <param-name>contextClass</param-name>
+            <param-value>
+                org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+            </param-value>
+        </init-param>
+        <!-- Again, config locations must consist of one or more comma- or space-delimited
+            and fully-qualified @Configuration classes -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>com.acme.web.MvcConfig</param-value>
+        </init-param>
+    </servlet>
+
+    <!-- map all requests for /app/* to the dispatcher servlet -->
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/app/*</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+
+### @Bean注解
+
+#### 生命周期回调
+
+* '@PostConstruct` and `@PreDestroy' 构造器调用完后,setter注入前,  销毁前
+* 支持 spring常规的 回调'InitializingBean`, `DisposableBean`, or `Lifecycle' 
+* `*Aware` interfaces 注入接口回调
+* 支持 init-method` and `destroy-method 属性
+
+* 关闭生命周期回调
+
+  ```java
+  @Bean(destroyMethod="")
+  public DataSource dataSource() throws NamingException {
+      return (DataSource) jndiTemplate.lookup("MyDS");
+  }
+  ```
+
+#### 指定scope域
+
+```java
+// an HTTP Session-scoped bean exposed as a proxy
+@Bean
+@SessionScope
+public UserPreferences userPreferences() {
+    return new UserPreferences();
+}
+
+@Bean
+public Service userService() {
+    UserService service = new SimpleUserService();
+    // a reference to the proxied userPreferences bean
+    service.setUserPreferences(userPreferences());
+    return service;
+}
+```
+
+#### bean别名
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean({"dataSource", "subsystemA-dataSource", "subsystemB-dataSource"})
+    public DataSource dataSource() {
+        // instantiate, configure and return DataSource bean...
+    }
+}
+```
+
+#### bean描述
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean
+    @Description("Provides a basic example of a bean")
+    public Thing thing() {
+        return new Thing();
+    }
+}
+```
+
+### @import
+
+```java
+@Configuration
+public class ConfigA {
+
+    @Bean
+    public A a() {
+        return new A();
+    }
+}
+
+@Configuration
+@Import(ConfigA.class)
+public class ConfigB {
+
+    @Bean
+    public B b() {
+        return new B();
+    }
+}
+
+
+public static void main(String[] args) {
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigB.class);
+
+    // now both beans A and B will be available...
+    A a = ctx.getBean(A.class);
+    B b = ctx.getBean(B.class);
+}
+```
+
+这样只用引入 ConfigB就可以同时引入ConfigA
+
+### 条件性的包含bean
+
+[`@Conditional`](https://docs.spring.io/spring-framework/docs/5.2.7.RELEASE/javadoc-api/org/springframework/context/annotation/Conditional.html).
+
+实现Conditional接口
+
+@Profile的实现
+
+```java
+@Override
+public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+    // Read the @Profile annotation attributes
+    MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class.getName());
+    if (attrs != null) {
+        for (Object value : attrs.get("value")) {
+            if (context.getEnvironment().acceptsProfiles(((String[]) value))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+}
+```
+
+Condition接口
+
+```java
+boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
+```
+
+### Java配置与XML配置结合
+
+* 以Java为中心的配置 AnnotationConfigApplicationContext and the  @ImportResource 导入xml
+
+```javascript
+@Configuration
+@ImportResource("classpath:/com/acme/properties-config.xml")
+public class AppConfig {
+
+    @Value("${jdbc.url}")
+    private String url;
+
+    @Value("${jdbc.username}")
+    private String username;
+
+    @Value("${jdbc.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource() {
+        return new DriverManagerDataSource(url, username, password);
+    }
+}
+```
+
+## 环境抽象
+
+spring对环境的抽象建模 主要是 两块: properties 和 profile
+
+* profile的含义是 条件选择
+
+* properties (包括配置文件,系统属性,系统环境变量,JNDI,servletContext参数,等等)
+
+### profile
+
+```java
+@Configuration
+@Profile("development")
+public class StandaloneDataConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.HSQL)
+            .addScript("classpath:com/bank/config/sql/schema.sql")
+            .addScript("classpath:com/bank/config/sql/test-data.sql")
+            .build();
+    }
+}
+```
+
+profile名称支持 如下语法
+
+- `!`: A logical “not” of the profile
+- `&`: A logical “and” of the profiles
+- `|`: A logical “or” of the profiles
+
+可以自定义注解
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Profile("production")
+public @interface Production {
+}
+```
+
+@Profile({"p1", "!p2"}) {} 标识 或逻辑
+
+基于xml的配置
+
+```xml
+<beans profile="development"
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xsi:schemaLocation="...">
+
+    <jdbc:embedded-database id="dataSource">
+        <jdbc:script location="classpath:com/bank/config/sql/schema.sql"/>
+        <jdbc:script location="classpath:com/bank/config/sql/test-data.sql"/>
+    </jdbc:embedded-database>
+</beans>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xsi:schemaLocation="...">
+
+    <!-- other bean definitions -->
+
+    <beans profile="development">
+        <jdbc:embedded-database id="dataSource">
+            <jdbc:script location="classpath:com/bank/config/sql/schema.sql"/>
+            <jdbc:script location="classpath:com/bank/config/sql/test-data.sql"/>
+        </jdbc:embedded-database>
+    </beans>
+
+    <beans profile="production">
+        <jee:jndi-lookup id="dataSource" jndi-name="java:comp/env/jdbc/datasource"/>
+    </beans>
+</beans>
+```
+
+### 激活profile
+
+通过编程的方式 ,使用Environment接口 通过容器
+
+```java
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ctx.getEnvironment().setActiveProfiles("development");
+ctx.register(SomeConfig.class, StandaloneDataConfig.class, JndiDataConfig.class);
+ctx.refresh();
+```
+
+使用注解 @ActiveProfiles
+
+使用变量名spring.profiles.active
+
+```
+  -Dspring.profiles.active="profile1,profile2"
+```
+
+spring.profiles.default设置默认环境变量
+
+```java
+@Configuration
+@Profile("default")
+public class DefaultDataConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.HSQL)
+            .addScript("classpath:com/bank/config/sql/schema.sql")
+            .build();
+    }
+}
+```
+
+### PropertiesSource
+
+* propertiesSource是 spring对环境变量的抽象,基于键值对的抽象
+
+* standardEnvironment 是包含两个 properties Source 
+
+  * JVM system properties (`System.getProperties()`
+  * system environment variables (`System.getenv()`).
+
+* StandardServletEnvrionment 包含 servletconfig,servletContext参数,可选的JNDIPropertySource
+
+* 环境变量的查找有层级优先级,以StandardServletEnvrionment 为例
+
+  * ServletConfig parameters (if applicable — for example, in case of a `DispatcherServlet` context)
+  * ServletContext parameters (web.xml context-param entries)
+  * JNDI environment variables (`java:comp/env/` entries)
+  * JVM system properties (`-D` command-line arguments)
+  * JVM system environment (operating system environment variables)
+
+* 以上查找机制是可配的,可自定义
+
+  ```java
+  ConfigurableApplicationContext ctx = new GenericApplicationContext();
+  MutablePropertySources sources = ctx.getEnvironment().getPropertySources();
+  sources.addFirst(new MyPropertySource());
+  ```
+
+  经过以上配置,可以注册自定义的MypropertySource 并且由先先级是最高
+
+### @PropertySource
+
+```java
+@Configuration
+@PropertySource("classpath:/com/myco/app.properties")
+public class AppConfig {
+
+    @Autowired
+    Environment env;
+
+    @Bean
+    public TestBean testBean() {
+        TestBean testBean = new TestBean();
+        testBean.setName(env.getProperty("testbean.name"));
+        return testBean;
+    }
+}
+```
+
+```java
+@Configuration
+@PropertySource("classpath:/com/${my.placeholder:default/path}/app.properties")
+public class AppConfig {
+
+    @Autowired
+    Environment env;
+
+    @Bean
+    public TestBean testBean() {
+        TestBean testBean = new TestBean();
+        testBean.setName(env.getProperty("testbean.name"));
+        return testBean;
+    }
+}
+```
+
+my.placeholder是其他已经定义过的 属性,default/path是找不到数据源使用默认的属性
+
+### 占位符解析
+
+环境变量贯穿整个容器,只要在定义之前这个变量已经被注册进去就可以
+
+```xml
+<beans>
+    <import resource="com/bank/service/${customer}-config.xml"/>
+</beans>
+```
+
+##  Registering a LoadTimeWeaver
+
+当类被装载进虚拟机时,动态的转换类
+
+```java
+@Configuration
+@EnableLoadTimeWeaving
+public class AppConfig {
+}
+```
+
+```xml
+<beans>
+    <context:load-time-weaver/>
+</beans>
+```
+

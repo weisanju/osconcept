@@ -1,12 +1,8 @@
-数据访问/集成
+spring抽象定义
 
-web(MVC/remoting)
-
-AOP Aspects Instrumentation Messaging
-
-CoreContainer
-
-Test
-
-
+| 接口名       | 子类               | 解释     |
+| ------------ | ------------------ | -------- |
+| NamingPolicy | SpringNamingPolicy | 命名策略 |
+|              |                    |          |
+|              |                    |          |
 
