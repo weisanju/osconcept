@@ -982,118 +982,7 @@ mvn clean deploy可以用来干净的构建项目
 
 # maven设置多环境
 
-## 通过属性激活配置
-
-```
-<profiles>
-    <profile>
-        <!--本地开发环境-->
-        <id>dev</id>
-        <properties>
-            <package.environment>dev</package.environment>
-        </properties>
-        <activation>
-            <activeByDefault>true</activeByDefault>
-        </activation>
-    </profile>
-    <profile>
-        <!--tb环境-->
-        <id>tb</id>
-        <properties>
-            <package.environment>tb</package.environment>
-        </properties>
-    </profile>
-</profiles>
-```
-
-## 多数据文件
-
-```xml
-    <profile>
-          <id>test</id>
-          <build>
-              <plugins>
-                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.8</version>
-                    <executions>
-                       <execution>
-                          <phase>test</phase>
-                          <goals>
-                             <goal>run</goal>
-                          </goals>
-                          <configuration>
-                          <tasks>
-                             <echo>Using env.test.properties</echo>
-                             <copy file="src/main/resources/env.test.properties" tofile="${project.build.outputDirectory}/env.properties" overwrite="true"/>
-                          </tasks>
-                          </configuration>
-                       </execution>
-                    </executions>
-                 </plugin>
-              </plugins>
-          </build>
-      </profile>
-```
-
-## 通过mvn命令行激活
-
-```
-mvn test -Ptest
-```
-
-## 通过Maven设置激活配置文件
-
-配置 setting.xml 文件，增加 `<activeProfiles>属性：`
-
-```xml
-<settings xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-   http://maven.apache.org/xsd/settings-1.0.0.xsd">
-   ...
-   <activeProfiles>
-      <activeProfile>test</activeProfile>
-   </activeProfiles>
-</settings>
-```
-
-## 通过环境变量激活配置文件
-
-```xml
-mvn test -Denv=test
-```
-
-## 通过操作系统激活配置文件
-
-```xml
-<profile>
-   <id>test</id>
-   <activation>
-      <os>
-         <name>Windows XP</name>
-         <family>Windows</family>
-         <arch>x86</arch>
-         <version>5.1.2600</version>
-      </os>
-   </activation>
-</profile>
-```
-
-## 通过文件的存在或者缺失激活配置文件
-
-```
-<profile>
-   <id>test</id>
-   <activation>
-      <file>
-         <missing>target/generated-sources/axistools/wsdl2java/
-         com/companyname/group</missing>
-      </file>
-   </activation>
-</profile>
-```
+[多环境设置](maven-profile.md)
 
 
 
@@ -1745,6 +1634,8 @@ mvn release:perform
                     </execution>
                 </executions>
             </plugin>
+
+
 
             <!--spring boot repackage，依赖 maven-jar-plugin 打包的jar包 重新打包成 spring boot 的jar包-->
             <plugin>
